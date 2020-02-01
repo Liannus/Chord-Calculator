@@ -20,7 +20,7 @@ COMP4102 Final project for determining guitar chords through computer vision.
   + [github]()
 
 ## Summary
-Chord calculator is an computer vision application capable of estimating guitar chords through recognition of common hand positions and locations on the fretboard. This combination allows for the future development of educational software as well as sheet music generators.
+Chord calculator is a computer vision application capable of estimating guitar chords through recognition of common hand positions and locations on the fretboard. This combination allows for the future development of educational software as well as sheet music generators.
 
 ## Background
 Due to group members currently learning computer vision techniques for the first time, Chord Calculator is estimated to change in techniques and implementation.
@@ -59,23 +59,28 @@ The base level of success sought throughout this project will be the recognition
 research open-cv functions and possible algorithms for implementation
 
 #### feb 8  - feb 14
+Research machine learning by looking up how to  feed a program a dataset
 
 #### feb 15 - feb 21
+Take relevant pictures of guitar chord hand shapes for use in the dataset, and best camera angles for implementation
 
 #### feb 22 - feb 28
+Use openCV to recognise a given handshape as a specific chord when given a picture
 
 #### feb 29 - mar 6
+Extend the functionality by capturing the hand placements and correct chords when given a sample video 
 
-#### mar 7  - mar 13
-
-#### mar 14 - mar 20
+#### mar 7  - mar 20
+Feed more pictures/videos to the machine learning algorithm in openCV for better accuracy for 3 basic chords (D, C, and G - these can change depending on how hard it is for the program to recognise, perhaps there are some chords that are more easily visually distinguished).
 
 #### mar 21 - mar 27
+If on time by this point, then perhaps feed other chords (such as barre chords) to the machine learning program so that it can recognise them
 
 #### mar 28 - apr 3
+Once it can reliably recognise chords, then work on a pleasing visual interface to display the chords in-sync with the video 
 
 #### mar 4  - apr 10
-
+Prepare to present the idea in class
 
 
 
