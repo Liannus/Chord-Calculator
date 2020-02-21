@@ -12,12 +12,12 @@ COMP4102 Final project for determining guitar chords through computer vision.
 
 ## Contributors
 - Harry Ismayilov
-  + [github ]()
+  + [github ](https://github.com/canyoureadmymind)
 - Josh Gorman
   + [github](https://github.com/Liannus)
   + [website](https://joshgorman.ca/)
 - Kushal Choksi
-  + [github]()
+  + [github](https://github.com/moustacheman1)
 
 ## Summary
 Chord calculator is a computer vision application capable of estimating guitar chords through recognition of common hand positions and locations on the fretboard. This combination allows for the future development of educational software as well as sheet music generators.
@@ -27,9 +27,9 @@ Due to group members currently learning computer vision techniques for the first
 
 Using edge detection algorithms to determine locations of fingers on the fret board or machine learning algorithms to recognize common chord shapes are techniques currently being researched for implementation. Some papers containing details on edge detection and similar methods can be found below:
 
-- Burns, Anne-Marie. “Computer Vision Methods for Guitarist Left-Hand Fingering Recognition.” DigiTool Stream Gateway Error, Input Deviees and Music Interaction Lab Schulich School of Music McGill University, Feb. 2007, [digitool.library.mcgill.ca/webclient/StreamGate?folder_id=0&amp;dvs=1580432298292~888](digitool.library.mcgill.ca/webclient/StreamGate?folder_id=0&amp;dvs=1580432298292~888).
-- Kerdvibulvech, Chutisant, and Hideo Saito. “Real-Time Guitar Chord Recognition SystemUsing Stereo Cameras for SupportingGuitarists.” Hyper Vision Research Labratory, Department of Informationand Computer Science, Keio University, 28 Feb. 2007, [hvrl.ics.keio.ac.jp/paper/pdf/international_Journal/2007/chutisant_ECTI07.pdf](hvrl.ics.keio.ac.jp/paper/pdf/international_Journal/2007/chutisant_ECTI07.pdf).
-- Scarr, Joseph, and Richard Green. “Retrieval of Guitarist Fingering Information UsingComputer Vision.” Joey Scarr, Department of Computer Science and Software EngineeringUniversity of Canterbury, New Zealand, [joey.scarr.co.nz/pdf/autotab.pdf](joey.scarr.co.nz/pdf/autotab.pdf).
+- Burns, Anne-Marie. “Computer Vision Methods for Guitarist Left-Hand Fingering Recognition.” DigiTool Stream Gateway Error, Input Deviees and Music Interaction Lab Schulich School of Music McGill University, Feb. 2007, [digitool.library.mcgill.ca/webclient/StreamGate?folder_id=0&amp;dvs=1580432298292~888](https://www.researchgate.net/publication/267974992_Computer_vision_method_for_guitarist_fingering_retrieval).
+- Kerdvibulvech, Chutisant, and Hideo Saito. “Real-Time Guitar Chord Recognition SystemUsing Stereo Cameras for SupportingGuitarists.” Hyper Vision Research Labratory, Department of Informationand Computer Science, Keio University, 28 Feb. 2007, [hvrl.ics.keio.ac.jp/paper/pdf/international_Journal/2007/chutisant_ECTI07.pdf](http://hvrl.ics.keio.ac.jp/paper/pdf/international_Journal/2007/chutisant_ECTI07.pdf).
+- Scarr, Joseph, and Richard Green. “Retrieval of Guitarist Fingering Information UsingComputer Vision.” Joey Scarr, Department of Computer Science and Software EngineeringUniversity of Canterbury, New Zealand, [joey.scarr.co.nz/pdf/autotab.pdf](http://joey.scarr.co.nz/pdf/autotab.pdf).
 
 ## The Challenge
 This problem present many issues that similar algorithms with other instruments manage to avoid:
