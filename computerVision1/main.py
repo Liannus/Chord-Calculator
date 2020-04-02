@@ -243,8 +243,8 @@ def drawLines(image, lines, colour):
 
 def main(argv):
 
-    baseFilename = 'inputo.jpg'
-    dChordFilename = 'dmaj.jpg'
+    baseFilename = 'computerVision1/base.jpg'
+    dChordFilename = 'computerVision1/dmaj.jpg'
 
     baseImage = cv.imread(cv.samples.findFile(baseFilename), 0)
 
