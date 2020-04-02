@@ -24,25 +24,25 @@ class FacialExpressionModel(object):
         self.preds = self.loaded_model.predict(img)
         return FacialExpressionModel.EMOTIONS_LIST[np.argmax(self.preds)]
 
-# def main():
-print ("hello")
-facec = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-model = FacialExpressionModel("model.json", "model_weights.h5")
-font = cv2.FONT_HERSHEY_SIMPLEX
+# # def main():
+# print ("hello")
+# facec = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+# model = FacialExpressionModel("model.json", "model_weights.h5")
+# font = cv2.FONT_HERSHEY_SIMPLEX
 
 
-# returns camera frames along with bounding boxes and predictions
-#def get_frame(self):
-    #_, fr = self.video.read()
-    #gray_fr = cv2.cvtColor(fr, cv2.COLOR_BGR2GRAY)
-    #faces = facec.detectMultiScale(gray_fr, 1.3, 5)
+# # returns camera frames along with bounding boxes and predictions
+# #def get_frame(self):
+#     #_, fr = self.video.read()
+#     #gray_fr = cv2.cvtColor(fr, cv2.COLOR_BGR2GRAY)
+#     #faces = facec.detectMultiScale(gray_fr, 1.3, 5)
 
-image = cv2.imread(os.getcwd()+"/media/images/train/g/g.png")
-image2 = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-image3 = cv2.resize(image2, (200,300))
-pred = model.predict_emotion(image3[np.newaxis, :, :, np.newaxis])
+# image = cv2.imread(os.getcwd()+"/media/images/train/g/g.png")
+# image2 = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+# image3 = cv2.resize(image2, (200,300))
+# pred = model.predict_emotion(image3[np.newaxis, :, :, np.newaxis])
 
-print("prediction is", pred)
+# print("prediction is", pred)
     # for (x, y, w, h) in faces:
     #     fc = gray_fr[y:y+h, x:x+w]
 
