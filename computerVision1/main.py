@@ -9,6 +9,7 @@ import statistics as stat
 import cv2 as cv
 import imutils
 import numpy as np
+import threading
 
 """
 Explanation
@@ -19,9 +20,11 @@ Explanation
 
 def removeOutliers(imageToCrop):
     thresh1 = cv.cvtColor(imageToCrop, cv.COLOR_BGR2GRAY)
-    lines = cv.HoughLinesP(thresh1, 1, np.pi / 180, 150, None, 50, 30)
+    lines = cv.HoughLinesP(thresh1, 1, np.pi / 180, 150, None, 70, 30)
     y = []
 
+    if lines is None:
+        return []
     for line in lines:
         for x1, y1, x2, y2 in line:
             y.append([y1, abs(y2-y1/x2-x1), y2, x1, x2])
@@ -52,18 +55,31 @@ Explanation
 
 
 def removeVerticalOutliers(imageToCrop):
-    lines = cv.HoughLinesP(imageToCrop, 1, np.pi / 180, 40, None, 20, 20)
+    if (not len(imageToCrop.shape) < 3):
+        imageToCrop = cv.cvtColor(imageToCrop, cv.COLOR_BGR2GRAY)
+    lines = cv.HoughLinesP(imageToCrop, 1, np.pi / 180, 30, None, 20, 20)
     x_diff = []
 
+    if lines is None:
+        return []
     for line in lines:
         for x1, y1, x2, y2 in line:
-            x_diff.append(x1 - x2)
+            x_diff.append(abs(x1 - x2))
+
+    remove_large = np.array(x_diff) < 15
+    lines = lines[remove_large]
+
+    x_diff = []
+    for line in lines:
+        for x1, y1, x2, y2 in line:
+            x_diff.append(abs(x1 - x2))
 
     x_mean = np.mean(x_diff)
     x_med = np.median(x_diff)
+    print(x_med)
     x_std = np.std(x_diff)
     x_dis = abs(x_diff-x_med)
-    max_deviations = 0.1
+    max_deviations = 2
     not_outlier = x_dis < max_deviations * x_std
     not_outliers = lines[not_outlier]
 
@@ -123,23 +139,32 @@ Currently, we identify it by looking at parts where there are more than two line
 def crop_neck_picture(image):
     image_to_crop = image
 
-    dst = cv.Canny(image_to_crop, 50, 200, None, 3)
+    dst = cv.Canny(image_to_crop, 50, 220, None, 3)
     image_to_crop = cv.cvtColor(dst, cv.COLOR_GRAY2BGR)
 
     edges = cv.Sobel(image_to_crop, cv.CV_8U, 0, 1, ksize=5)
     edges, thresh1 = cv.threshold(edges, 127, 255, cv.THRESH_BINARY)
 
     y_final = removeOutliers(thresh1)
+    if len(y_final) < 10:
+        return image_to_crop
 
+    image_start = image_to_crop
+
+    if len(y_final) == 0:
+        return image_start
     center = y_final[len(y_final)//2]
     angle = np.rad2deg(np.arctan2(
         center[2] - center[0], center[4] - center[3]))
 
     image_to_crop = imutils.rotate_bound(image_to_crop, -angle)
+
     y_final = removeOutliers(image_to_crop)
 
+    if len(y_final) == 0:
+        return image_start
     yBottom = y_final[0][0]-10
-    yTop = y_final[len(y_final)-1][0]+10
+    yTop = y_final[len(y_final)-1][0]+50
 
     image_start = imutils.rotate_bound(image, -angle)
     image_start = image_start[yBottom:yTop]
@@ -179,13 +204,16 @@ def getWarpedImage(img1Pts, img2Pts, img1, img2):
 
 
 def detectFrets(image):
+    if (not len(image.shape) < 3):
+        return [], []
     edges = cv.Sobel(image, cv.CV_8U, 1, 0, ksize=3)
     ret, edges = cv.threshold(edges, 100, 255, cv.THRESH_BINARY)
     closing = cv.morphologyEx(edges, cv.MORPH_CLOSE, (3, 3), iterations=3)
 
     # Remove the unneeded outlier lines (lines that are not at the same slope as the frets)
     linesNoOutliers = removeVerticalOutliers(closing)
-
+    if len(linesNoOutliers) == 0:
+        return [], []
     # Break and sort the lines by their X values
     onlyCoords = []
     for line in linesNoOutliers:
@@ -228,6 +256,8 @@ def detectFrets(image):
     neckHeight = firstFret[1] - firstFret[3]
     stringDist = np.round(neckHeight / 6)
 
+    if stringDist == 0:
+        return [], []
     for z in range(int(firstFret[3]), int(neckHeight), int(stringDist)):
         currentString = z + int(stringDist)
         stringLines.append([firstFret[0], currentString,
@@ -239,6 +269,25 @@ def detectFrets(image):
 def drawLines(image, lines, colour):
     for x1, y1, x2, y2 in lines:
         cv.line(image, (x1, y1), (x2, y2), colour, 2)
+
+
+def grabFrame(cap):
+    threading.Timer(20.0, grabFrame).start()
+    print("timer tick")
+    ret, frame = cap.read()
+    return ret, frame
+
+    if not ret:
+        print("Can't receive frame (stream end?). Exiting ...")
+
+    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    croppedFrame = crop_neck_picture(gray)
+
+    # Display the resulting frame
+    cv.imshow('frame', croppedFrame)
+
+    if cv.waitKey(1) == ord('q'):
+        exit()
 
 
 def main(argv):
@@ -280,8 +329,122 @@ def main(argv):
     cv.imshow("second-image warped with lines", warpedDChord)
 
     cv.waitKey()
-    return 0
+
+    cap = cv.VideoCapture(0)
+    if not cap.isOpened():
+        print("Cannot open camera")
+        exit()
+
+    # ret, frame = grabFrame(cap)
+    setupStage = True
+    croppedFrame = 0
+
+    # Variables used in warping new images onto existing ones
+    fretboard = 0
+    fretlines = 0,
+    stringLines = 0
+
+    while True:
+        # Capture frame-by-frame
+        key = cv.waitKey(100)
+        if key == ord("q"):
+            break
+        elif key == ord("t"):
+            fretboard = croppedFrame
+            setupStage = False
+            cv.imshow('frame', fretboard)
+            cv.waitKey(0)
+
+        if setupStage == True:
+            ret, frame = cap.read()
+
+            # if frame is read correctly ret is True
+            if ret:
+                gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+                croppedFrame = crop_neck_picture(gray)
+
+                if (len(croppedFrame.shape) < 3):
+                    imageWithLines = cv.cvtColor(
+                        croppedFrame, cv.COLOR_GRAY2BGR)
+                    fretLines, stringLines = detectFrets(croppedFrame)
+
+                    drawLines(imageWithLines, stringLines, (0, 255, 0))
+                    drawLines(imageWithLines, fretLines, (255, 0, 0))
+
+                #fretboard = cv.cvtColor(croppedFrame, cv.COLOR_BGR2GRAY)
+                cv.imshow('frame', imageWithLines)
+
+            else:
+                print("Can't receive frame (stream end?). Exiting ...")
+                break
+        else:
+            ret, frame = cap.read()
+            # if frame is read correctly ret is True
+            if ret:
+                gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+                croppedFrame = crop_neck_picture(gray)
+
+                if (len(croppedFrame.shape) < 3):
+                    imageWithLines = cv.cvtColor(
+                        croppedFrame, cv.COLOR_GRAY2BGR)
+                    ptsA, ptsB = createMatches(croppedFrame, fretboard)
+                    # Now warp image A onto image B
+                    warpedChord = getWarpedImage(
+                        ptsA, ptsB, croppedFrame, fretboard)
+
+                    # Reintroduce colour dimension for lines
+                    warpedChord = cv.cvtColor(warpedChord, cv.COLOR_GRAY2BGR)
+                    drawLines(warpedChord, stringLines, (0, 255, 0))
+                    drawLines(warpedChord, fretLines, (255, 0, 0))
+                    croppedFrame = warpedChord
+
+                cv.imshow('frame', croppedFrame)
+            else:
+                print("Can't receive frame (stream end?). Exiting ...")
+                break
+        # Our operations on the frame come here
+        #gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        #croppedFrame = crop_neck_picture(gray)
+
+    # Display the resulting frame
+        #cv.imshow('frame', croppedFrame)
+    # When everything done, release the capture
+
+    cap.release()
+    cv.destroyAllWindows()
+
+    return (0)
 
 
 if __name__ == "__main__":
     main(sys.argv[1:])
+
+"""
+            # Draw the fret lines
+            cv.imshow("beginning", baseImage)
+            cv.imshow("crop algorithm", croppedBaseImage)
+
+            dChord = cv.imread(cv.samples.findFile(dChordFilename), 0)
+
+            croppedDChord = crop_neck_picture(dChord)
+
+            # Get the points matching the Image A and Image B
+            ptsA, ptsB = createMatches(croppedDChord, croppedBaseImage)
+            # Now warp image A onto image B
+            warpedDChord = getWarpedImage(ptsA, ptsB, croppedDChord, croppedBaseImage)
+
+            cv.imshow("second-image", croppedDChord)
+            cv.imshow("second-image warped", warpedDChord)
+
+            # Reintroduce colour dimension for lines
+            warpedDChord = cv.cvtColor(warpedDChord, cv.COLOR_GRAY2BGR)
+            drawLines(warpedDChord, stringLines, (0, 255, 0))
+            drawLines(warpedDChord, fretLines, (255, 0, 0))
+
+            croppedBaseImage = cv.cvtColor(croppedBaseImage, cv.COLOR_GRAY2BGR)
+            drawLines(croppedBaseImage, stringLines, (0, 255, 0))
+            drawLines(croppedBaseImage, fretLines, (255, 0, 0))
+
+            cv.imshow("base-image warped with lines", croppedBaseImage)
+            cv.imshow("second-image warped with lines", warpedDChord)
+"""
