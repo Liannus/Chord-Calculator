@@ -55,8 +55,6 @@ Explanation
     Attempt to find all of the horizontal houghlines inside of the image and remove any outliers
     by checking if their slope is too different from the other lines
 """
-
-
 def removeOutliers(imageToCrop):
     # Conver the image to grayscale and grab the houghlines
     thresh1 = cv.cvtColor(imageToCrop, cv.COLOR_BGR2GRAY)
@@ -105,8 +103,6 @@ Explanation
     optimized to find shorter lengths of lines (matching that of frets) and removes lines that are not
     sufficiently close to being vertical (due to the algorithm making the fretboard horizontal)
 """
-
-
 def removeVerticalOutliers(imageToCrop):
     # Make the code grayscale if it's not already
     if (not len(imageToCrop.shape) < 3):
@@ -201,8 +197,6 @@ Explanation
     Upon creating the fretboard it takes the top and bottom lines pixel values and crops out the rest of the
     image to allow for a more focused region when determining your chords.
 """
-
-
 def cropNeckPicture(image):
     image_to_crop = image
 
@@ -628,7 +622,6 @@ def liveChordCheck():
     cap.release()
     cv.destroyAllWindows()
 
-
 """
 Explanation
     Input: 
@@ -735,7 +728,6 @@ def main(argv):
         print("Please select a valid option ('i', or 'w')")
 
     return (0)
-
 
 if __name__ == "__main__":
     main(sys.argv[1:])
